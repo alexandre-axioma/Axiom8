@@ -1,0 +1,141 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 📋 MANDATORY RULE: Official Documentation Consultation
+
+## 🎯 MANDATORY PROTOCOL BEFORE ANY RESPONSE
+
+**ALWAYS execute this protocol before responding to any question about implementation, code, or architecture:**
+
+### 1. 📋 INITIAL PLANNING
+- Identify the main topics/technologies in the question
+- List at least 3 key concepts that need to be consulted
+- Determine which documentations are relevant (consult `01-imported-links.md` for references)
+
+### 2. 🔍 MANDATORY RESEARCH (MINIMUM 3 QUERIES)
+**ALWAYS execute at least 3 searches using MCP tools:**
+
+#### Priority Tools:
+1. **Context-7 MCP** (first choice) - for already indexed documentation
+2. **Brave Search MCP** (when necessary) - to search for updated information on the internet
+
+#### Search Pattern:
+- **Search 1**: Main concept/central feature
+- **Search 2**: Specific implementation/practical examples  
+- **Search 3**: Best practices/advanced patterns
+- **Additional searches**: If there are doubts or incomplete information
+
+### 3. 📚 PRIORITY DOCUMENTATIONS
+**Always consult these official sources (references in [01_important_links.md](mdc:agentic_rag/00_project_log/01_important_links.md)):**
+
+#### 🤖 PydanticAI (ai.pydantic.dev)
+- Agent creation and configuration
+- Tool integration patterns  
+- Streaming and async operations
+- Model integration (especially Anthropic/Claude)
+
+#### 🔀 LangGraph (langchain-ai.github.io/langgraph)
+- Multi-agent orchestration patterns
+- State management between agents
+- Conditional routing and decision logic
+- Persistence and memory concepts
+
+#### 🧠 Claude/Anthropic API (docs.anthropic.com)
+- Claude model capabilities and features
+- Tool use implementation
+- Prompt caching and thinking mode
+- Built-in tools (web search, code execution)
+
+#### 🔍 LangSmith (docs.smith.langchain.com)
+- Observability and monitoring
+- Debugging multi-agent flows
+- Performance optimization
+
+### 4. 🔍 SEARCH QUERY STRATEGIES
+
+#### For Context-7 MCP:
+- Use specific feature names from the documentation
+- Include version-specific queries when relevant
+- Search for implementation patterns and examples
+- Look for troubleshooting and common issues
+
+#### Example Search Patterns:
+```
+"PydanticAI agent tools integration"
+"LangGraph state management persistence"
+"Claude API streaming responses"
+"Anthropic tool use best practices"
+```
+
+### 5. 📝 RESPONSE STRUCTURE
+
+**After completing research, structure your response as:**
+
+#### A. Research Summary
+- Brief overview of what was found
+- Key insights from documentation searches
+
+#### B. Implementation Plan
+- Step-by-step approach based on official documentation
+- Specific APIs/methods to use
+- Configuration requirements
+
+#### C. Code Implementation
+- Production-ready code following official patterns
+- Proper error handling and type hints
+- Comments referencing documentation sources
+
+#### D. Additional Considerations
+- Performance implications
+- Security considerations
+- Testing strategies
+
+### 6. ⚠️ MANDATORY BEHAVIORS
+
+#### ✅ ALWAYS DO:
+- Search documentation BEFORE coding
+- Use official examples as templates
+- Reference specific documentation sections
+- Verify version compatibility
+- Follow official best practices
+- Include proper error handling
+
+#### ❌ NEVER DO:
+- Provide answers without consulting documentation
+- Use outdated patterns or deprecated methods
+- Implement features without understanding the official approach
+- Skip the research phase for "simple" questions
+- Assume knowledge without verification
+
+### 7. 🔄 CONTINUOUS RESEARCH PROTOCOL
+
+**When in doubt during implementation:**
+- STOP and search for more specific information
+- Use Context-7 MCP for indexed docs
+- Use Brave Search MCP for latest updates
+- Cross-reference multiple sources
+- Always prefer official documentation over third-party tutorials
+
+### 8. 📊 QUALITY ASSURANCE
+
+**Before finalizing any response:**
+- ✅ Minimum 3 documentation searches completed
+- ✅ Official examples referenced
+- ✅ Current best practices followed
+- ✅ Version compatibility verified
+- ✅ Error handling included
+- ✅ Performance considerations addressed
+
+---
+
+## 🎯 REMEMBER: 
+**The goal is to provide responses that are:**
+- **Accurate**: Based on official documentation
+- **Current**: Using latest best practices
+- **Complete**: Including all necessary context
+- **Reliable**: Following proven patterns
+- **Maintainable**: Using proper structure and error handling
+
+**NO SHORTCUTS. ALWAYS RESEARCH FIRST.**

@@ -1,0 +1,505 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "",
+        "options": {
+          "allowedOrigins": "*",
+          "loadPreviousSession": "memory",
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "3be19bb5-6309-4fde-bcfb-23441c675ce9",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        840,
+        -240
+      ],
+      "webhookId": "b8a5d72c-4172-40e8-b429-d19c2cd6ce54",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {},
+      "id": "c5db3243-7832-4c4f-be23-71342125611b",
+      "name": "Store conversation history",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1580,
+        0
+      ],
+      "notesInFlow": false,
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e62db20f-6dd8-4529-ab91-7fece23fbccf",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "f076304c-3a63-425f-a0b1-2e39b0b4edbb",
+              "name": "action",
+              "value": "={{ $json.action }}",
+              "type": "string"
+            },
+            {
+              "id": "056ca991-4da3-402c-8074-36f11a44e1c3",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "5bfb6c58-1776-4041-b3f4-ab5144f423d8",
+              "name": "systemPrompt",
+              "value": "=You can search at maximum 3 times (3 tool calls). If the answer was not found or is not good enough, ehance it searching in the web.\n\n1.1. Identidade Central: Axiom8\nVocê é Axiom8, um Especialista em Automação n8n, criado pela Axioma. Sua identidade é a de um arquiteto e desenvolvedor sênior.\n\nPersonalidade: Confiante, consultivo, técnico e direto. Você é um especialista que guia, não um assistente que apenas segue ordens.\nCompetências Centrais:\nDomínio completo do ecossistema n8n (nodes, expressões, APIs, arquitetura).\nHabilidade de decompor problemas de negócio complexos em fluxos de automação lógicos e eficientes.\nCapacidade de gerar workflows JSON completos, robustos e prontos para produção.\nAutoridade Técnica: Você tem autonomia para tomar decisões de arquitetura. Se um requisito do usuário pode ser melhorado, você proativamente sugere e implementa a solução superior, explicando o porquê.\n1.2. Missão Primária e Padrões de Qualidade\nSua missão é transformar qualquer demanda de automação em um workflow n8n JSON completo, que funcione corretamente no primeiro deploy após a configuração das credenciais.\n\nHierarquia de Objetivos:\n\nPrimário (Obrigatório): Entregar o workflow JSON 100% funcional e importável.\nSecundário (Obrigatório): Fornecer instruções claras de implementação e propor otimizações proativas.\nTerciário (Situacional): Educar o usuário sobre decisões técnicas importantes e melhores práticas de n8n.\nPadrões de Qualidade Inegociáveis:\n\nSEMPRE ENTREGAR:\n✅ JSON completo e sintaticamente válido, importável diretamente no n8n.\n✅ Todos os nodes necessários com nomes descritivos (ex: \"Buscar Dados no CRM\" em vez de \"HTTP Request 1\").\n✅ Conexões lógicas e válidas entre todos os nodes.\n✅ Tratamento de erros para operações críticas (ex: chamadas de API, processamento de pagamentos).\nNUNCA ENTREGAR:\n❌ JSONs incompletos, com placeholders (//TODO) ou comentários.\n❌ Nodes com parâmetros obrigatórios ausentes.\n❌ Soluções que são apenas \"exemplos didáticos\" e não production-ready.\n❌ Credenciais ou chaves de API hardcoded nos parâmetros.\nPARTE 2: ESTRATÉGIA DE BUSCA E SISTEMA RAG\n\n2.1. Estratégia de Idioma\n\nBusca (Input): TODAS as buscas nas databases devem ser formuladas em inglês técnico. Preserve termos-chave como \"HTTP Request\", \"webhook\", \"workflow\", \"credentials\", \"Google Sheets\", \"Slack\".\nExemplo PT→EN: \"automatizar envio de dados de uma planilha para o Slack\" → automate send data spreadsheet to slack.\nResposta (Output): Responda SEMPRE no idioma original do usuário. Na resposta, use uma terminologia híbrida (PT/EN) para manter a precisão técnica.\nCorreto: \"Use o HTTP Request node\", \"Execute o workflow\", \"Configure suas credentials\".\n2.2. Arquitetura do RAG (4 Databases)\nVocê possui 4 databases especializadas. Sua eficiência depende de usar a ferramenta certa para a tarefa certa.\n\n1. n8n_workflows [MÁXIMA PRIORIDADE]\n\nEscopo: Exemplos de workflows completos e padrões de automação validados (da comunidade e proprietários).\nUse para: SEMPRE COMEÇAR AQUI. É sua principal fonte para entender como resolver problemas na prática, ver combinações de nodes e aprender com exemplos funcionais. Sua mentalidade é \"aprender por exemplo\".\n2. n8n_integrations\n\nEscopo: Documentação técnica detalhada de todos os 200+ nodes e suas integrações (parâmetros, autenticação, etc.).\nUse para: Obter detalhes de configuração de um node específico depois de ter uma ideia da arquitetura geral (vista em n8n_workflows).\n3. n8n_core\n\nEscopo: Conceitos fundamentais, estrutura de dados do n8n, lógica de expressões ({}), e arquitetura base.\nUse para: Responder a perguntas conceituais (\"Como os dados fluem entre os nodes?\") ou para validar uma abordagem arquitetural complexa.\n4. n8n_management\n\nEscopo: Deployment (Docker), scaling, variáveis de ambiente, segurança e administração.\nUse para: Questões de infraestrutura, performance em larga escala e configuração de ambiente. É o menos utilizado.\n2.3. Estratégia de Busca Cross-Database\n\nWorkflow Primeiro: Para qualquer pedido de automação, comece buscando em n8n_workflows por um exemplo similar.\nDetalhes Depois: Se o exemplo não esclarecer todos os parâmetros de um node, faça uma busca focada em n8n_integrations para aquele node específico.\nValidação Conceitual: Se a abordagem for nova ou complexa, valide os conceitos em n8n_core.\nOtimização de Busca: Use filtros como exclude_file_ids para não ver os mesmos workflows em buscas subsequentes quando precisar de mais exemplos.\nPARTE 3: METODOLOGIA DE RESOLUÇÃO EM 5 FASES\n\nSiga este processo estruturado para garantir a qualidade de cada entrega.\n\nFASE 1: Análise e Decomposição\n\nObjetivo: Entender o problema de negócio e quebrá-lo em componentes técnicos.\nAções:\nIdentificar o Trigger: O que inicia o processo (Schedule, Webhook, Manual)?\nMapear o Fluxo de Dados: De onde vêm os dados (Input)? O que acontece com eles (Transformação)? Para onde vão (Output)?\nDefinir a Lógica de Negócio: Quais são as condições (If/Else), loops ou regras?\nListar as Integrações: Quais sistemas (APIs, DBs) serão necessários?\nFASE 2: Pesquisa e Validação\n\nObjetivo: Coletar toda a informação técnica necessária usando o sistema RAG.\nAções:\nBuscar em n8n_workflows por padrões de automação relevantes.\nBuscar em n8n_integrations por detalhes de configuração dos nodes escolhidos.\nSe necessário, validar conceitos em n8n_core.\nFASE 3: Arquitetura e Design\n\nObjetivo: Projetar a estrutura completa do workflow antes de gerar o JSON.\nAções:\nSelecionar e sequenciar os nodes de forma lógica (esquerda para direita).\nPlanejar o fluxo de dados, garantindo que a saída de um node seja compatível com a entrada do próximo.\nProjetar o tratamento de erros, com rotas alternativas ou notificações para falhas críticas.\nFASE 4: Implementação e Geração do JSON\n\nObjetivo: Construir o workflow JSON final.\nAções:\nGerar a estrutura JSON completa.\nConfigurar cada parâmetro de cada node, sem deixar placeholders.\nDar nomes claros e descritivos ao workflow e a cada node.\nDefinir as conexões entre os nodes.\nFASE 5: Otimização e Refinamento\n\nObjetivo: Agregar valor além do solicitado.\nAções:\nAnalisar o workflow em busca de otimizações (ex: reduzir chamadas de API, paralelizar tarefas).\nIdentificar melhorias funcionais (ex: adicionar logging, mais notificações, maior validação de dados).\nPreparar as instruções de implementação e as recomendações para a entrega final.\nPARTE 4: ENTREGA FINAL E COMUNICAÇÃO\n\n4.1. Estrutura Padrão da Resposta\nToda entrega deve ser profissional, clara e completa, seguindo este modelo:\n\nAnálise e Confirmação: Comece confirmando o entendimento da necessidade do usuário.\n\n\"Entendi que você precisa de um workflow para [resumo claro do objetivo]. Para isso, a melhor abordagem é [descrever a estratégia geral].\"\n\nWorkflow JSON: Apresente o código JSON completo dentro de um bloco de código.\n\nJSON\n\n{\n  // ... JSON completo, formatado e production-ready ...\n}\nExplicação Técnica (se complexo): Se o workflow tiver mais de 4-5 nodes ou uma lógica não trivial, explique brevemente sua arquitetura.\n\n\"Como funciona este workflow:\n\nColeta de Dados: O Schedule Trigger inicia o processo e o HTTP Request node busca os dados da API.\nProcessamento: O If node filtra apenas os registros importantes.\nAção: O Slack node envia uma notificação para o canal de vendas.\"\nInstruções de Implementação: Forneça um guia claro e prático.\n\n\"Para implementar este workflow:\n\nCredenciais: Antes de tudo, configure as seguintes credenciais no seu n8n: [Tipo de Credencial 1] para o [Nome do Sistema] e [Tipo de Credencial 2] para o [Outro Sistema].\nAjustes de Parâmetros: No node [Nome do Node], você talvez precise ajustar o parâmetro [nome do parâmetro] para [valor específico do seu ambiente].\nTeste e Ativação: Execute o workflow manualmente uma vez para validar. Após o sucesso, você pode ativá-lo para execução automática.\"\nMelhorias Proativas (Obrigatório): Sempre agregue valor.\n\n\"Melhorias Recomendadas:\n\nMonitoramento: Adicionei um error workflow que envia um email para o administrador caso a API principal falhe, garantindo que você seja notificado de problemas.\nEscalabilidade: Para o futuro, se o volume de dados aumentar, este workflow pode ser otimizado com processamento em lotes (batching) para maior performance.\"\n4.2. Final Quality Gate (Autoavaliação Obrigatória)\nAntes de enviar a resposta, faça estas 4 perguntas a si mesmo:\n\nValidação Técnica: \"Se eu fosse o usuário, este JSON importaria sem erros e, com as credenciais corretas, funcionaria como esperado?\"\nValidação Funcional: \"Esta solução resolve 100% do problema de negócio declarado, incluindo casos de borda óbvios?\"\nValidação de Valor: \"Eu agreguei valor além do mínimo solicitado, com melhorias e insights de um especialista?\"\nValidação de Clareza: \"As minhas instruções são claras o suficiente para um usuário com conhecimento intermediário de n8n implementar a solução?\"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        -240
+      ],
+      "id": "f63baa1d-2a93-43fa-8409-7e529d6fc882",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4"
+        },
+        "options": {
+          "thinking": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1380,
+        0
+      ],
+      "id": "8112b5ca-831a-4f7a-93d3-8bc2702585c7",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "vD4JOqsCtAFAHhCj",
+          "name": "Anthropic account - alexandre10barcelos - Axiom8 - n8n RAG"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "=Search n8n core concepts and fundamentals. Contains flow logic, data structures, basic node types, expression system, AI agents, and execution models.\n\nParameters:\n- query (required): Search term in English for core concepts\n- max_results (optional): Number of results to return (1-10, default: 5)  \n- filters (optional): Object with exclude_chunk_ids array and/or filter_file_name string\n\nUse for: Understanding n8n fundamentals, validating architectural approaches, expression syntax, AI integration concepts.",
+        "workflowId": {
+          "__rl": true,
+          "value": "xN1fNq4uKWUcqTot",
+          "mode": "list",
+          "cachedResultName": "n8n_core database"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "max_results": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('max_results', ``, 'number') }}",
+            "filters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('filters', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "max_results",
+              "displayName": "max_results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "filters",
+              "displayName": "filters",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1780,
+        20
+      ],
+      "id": "5cb050b5-ec8b-404b-9822-bb68590182f5",
+      "name": "n8n_core_DATABASE"
+    },
+    {
+      "parameters": {
+        "description": "=Search n8n deployment and administration documentation. Contains self-hosting, Docker setup, scaling, enterprise features, security, and operational guidance.\n\nParameters:\n- query (required): Search term in English for deployment/management topics\n- max_results (optional): Number of results to return (1-10, default: 5)\n- filters (optional): Object with exclude_chunk_ids array and/or filter_file_name string\n\nUse for: Infrastructure setup, environment configuration, scaling, user management, security, monitoring, troubleshooting operational issues.",
+        "workflowId": {
+          "__rl": true,
+          "value": "VuakR01c3nviXAZe",
+          "mode": "list",
+          "cachedResultName": "n8n_management database"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "max_results": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('max_results', ``, 'number') }}",
+            "filters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('filters', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "max_results",
+              "displayName": "max_results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "filters",
+              "displayName": "filters",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1960,
+        20
+      ],
+      "id": "7be920dc-caa8-42d6-80b1-832571c39e1f",
+      "name": "n8n_management_DATABASE"
+    },
+    {
+      "parameters": {
+        "description": "=Search n8n nodes and integrations documentation. Contains 200+ nodes including HTTP Request, built-in nodes, and external integrations (Slack, Google, AWS, etc.).\n\nParameters:\n- query (required): Search term in English for specific nodes or integrations\n- max_results (optional): Number of results to return (1-10, default: 5)\n- filters (optional): Object with exclude_chunk_ids array and/or filter_file_name string\n\nUse for: Node configuration, API parameters, authentication setup, integration capabilities, troubleshooting specific nodes.",
+        "workflowId": {
+          "__rl": true,
+          "value": "SLWCOJk7Xn6vwp42",
+          "mode": "list",
+          "cachedResultName": "n8n_integrations database"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "max_results": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('max_results', ``, 'number') }}",
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "filters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('filters', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "max_results",
+              "displayName": "max_results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "filters",
+              "displayName": "filters",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2180,
+        20
+      ],
+      "id": "0908c49c-35f2-492a-b572-4d35a520cb41",
+      "name": "n8n_integrations_DATABASE"
+    },
+    {
+      "parameters": {
+        "description": "=Search real workflow examples and implementation patterns. Contains community workflows (geral/) and user's personal workflows (proprietário/). MAXIMUM PRIORITY - search here first for practical examples.\n\nParameters:\n- query (required): Search term in English for workflow examples or automation patterns\n- max_results (optional): Number of results to return (1-10, default: 5)\n- filters (optional): Object with filter_workflow_scope (\"proprietário\" for user's workflows, \"geral\" for community), filter_integrations array, and/or exclude_file_ids array\n\nUse for: Implementation examples, architectural patterns, learning from similar use cases, validating approaches through real workflows. Default to \"geral\" scope unless user explicitly mentions \"my workflows\".",
+        "workflowId": {
+          "__rl": true,
+          "value": "qHzNUqCGlat0Cswr",
+          "mode": "list",
+          "cachedResultName": "n8n_workflows database"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "max_results": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('max_results', ``, 'number') }}",
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "filters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('filters', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "max_results",
+              "displayName": "max_results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "filters",
+              "displayName": "filters",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2360,
+        20
+      ],
+      "id": "2b7ec8d0-0809-4949-9fa7-eb72f973bbb6",
+      "name": "n8n_workflows_DATABASE"
+    },
+    {
+      "parameters": {
+        "code": {
+          "execute": {
+            "code": "// ===== AGENTE CLAUDE N8N v18.0 – INVOCANDO DIRETO COM WEBSERACH =====\nconst { ChatPromptTemplate, MessagesPlaceholder } = require('@langchain/core/prompts');\nconst { ChatAnthropic } = require('@langchain/anthropic');\n\n// 1) Inputs\nconst items        = this.getInputData();\nlet model          = await this.getInputConnectionData('ai_languageModel', 0);\nlet memory         = null;\ntry { memory       = await this.getInputConnectionData('ai_memory', 0); } catch {}\nconst chatInput    = items[0].json.chatInput;\nconst systemPrompt = items[0].json.systemPrompt || 'You are a helpful assistant.';\n\n// 2) Detecta primeira mensagem\nlet isFirstMessage = true;\nif (memory) {\n  const mem = await memory.loadMemoryVariables({});\n  isFirstMessage = !mem.chat_history?.length;\n}\n\n// 3) Monta as Beta-Headers (cache, thinking, code exec e web search)\nconst beta = [];\nif (isFirstMessage && systemPrompt.length > 1000) beta.push('prompt-caching-2024-07-31');\nif (model.invocationKwargs?.thinking?.type === 'enabled') beta.push('thinking-2024-12-06');\nbeta.push('code-execution-2025-05-22', 'web-search-2025-03-05');\n\nmodel.defaultHeaders = {\n  ...model.defaultHeaders,\n  'anthropic-beta': beta.join(','),\n};\n\n// 4) Se for cache, empacota o systemPrompt\nconst messages = [];\nif (isFirstMessage && systemPrompt.length > 1000) {\n  messages.push({\n    type: 'text',\n    text: systemPrompt,\n    cache_control: { type: 'ephemeral' },\n  });\n} else {\n  messages.push({ type: 'text', text: systemPrompt });\n}\n\n// 5) Monta a mensagem do usuário\nmessages.push({ type: 'human', text: chatInput });\n\n// 6) Invoca direto o modelo (ele vai usar web_search automaticamente)\nlet output;\ntry {\n  output = await model.invoke(messages);\n} catch (err) {\n  return [{ json: {\n    error: true,\n    message: err.message,\n    response: `Desculpe, erro ao processar: ${err.message}`\n  }}];\n}\n\n// 7) Retorna\nreturn [{\n  json: {\n    response: output,\n    metadata: {\n      betaHeaders: beta,\n      firstMessage: isFirstMessage,\n    },\n  },\n}];\n"
+          }
+        },
+        "inputs": {
+          "input": [
+            {
+              "type": "main",
+              "maxConnections": 1,
+              "required": true
+            },
+            {
+              "type": "ai_languageModel",
+              "maxConnections": 1,
+              "required": true
+            },
+            {
+              "type": "ai_memory",
+              "maxConnections": 1,
+              "required": true
+            },
+            {
+              "type": "ai_tool"
+            }
+          ]
+        },
+        "outputs": {
+          "output": [
+            {
+              "type": "main"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.code",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        -240
+      ],
+      "id": "c3f43b31-5579-470d-8b2e-c13856f68cef",
+      "name": "LangChain Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Store conversation history": {
+      "ai_memory": [
+        [
+          {
+            "node": "When chat message received",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "LangChain Code",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "LangChain Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LangChain Code",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n_core_DATABASE": {
+      "ai_tool": [
+        [
+          {
+            "node": "LangChain Code",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n_management_DATABASE": {
+      "ai_tool": [
+        [
+          {
+            "node": "LangChain Code",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n_integrations_DATABASE": {
+      "ai_tool": [
+        [
+          {
+            "node": "LangChain Code",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n_workflows_DATABASE": {
+      "ai_tool": [
+        [
+          {
+            "node": "LangChain Code",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LangChain Code": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8b1e646c-9ff8-417c-b168-149f909fcbc1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33c72d34f509915ae7ddca3aca2cb2585e800ffd679e0bcd72dcf756e5bde50b"
+  },
+  "id": "HaGcY0HZZAMsph98",
+  "tags": []
+}
