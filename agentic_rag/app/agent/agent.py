@@ -9,7 +9,8 @@ from .tools import all_tools
 settings = get_settings()
 
 # 1. Explicitly create the provider with the API key from settings.
-provider = AnthropicProvider(api_key=settings.anthropic_api_key)
+# We must call .get_secret_value() to access the string inside the SecretStr object.
+provider = AnthropicProvider(api_key=settings.anthropic_api_key.get_secret_value())
 
 # 2. Define the model, passing the name and the configured provider.
 model = AnthropicModel(

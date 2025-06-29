@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  agentic-rag:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # AI API Keys
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # LangSmith Tracing
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT}
+      
+      # n8n RAG Webhook URLs
+      - N8N_DOCUMENTATION_SEARCH_URL=${N8N_DOCUMENTATION_SEARCH_URL}
+      - N8N_NODES_SEARCH_URL=${N8N_NODES_SEARCH_URL}
+      - N8N_WORKFLOWS_SEARCH_URL=${N8N_WORKFLOWS_SEARCH_URL}
+      - N8N_WORKFLOW_SEARCH_URL=${N8N_WORKFLOW_SEARCH_URL}
+      
+      # API Configuration
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      
+    volumes:
+      - ./logs:/app/logs  # Optional: persist logs
+      
+    networks:
+      - agentic-network
+
+networks:
+  agentic-network:
+    driver: bridge

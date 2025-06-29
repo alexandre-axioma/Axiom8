@@ -1,3 +1,11 @@
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file before anything else.
+# This ensures that LangSmith tracing is enabled from the start.
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger

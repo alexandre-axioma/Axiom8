@@ -10,13 +10,17 @@ typing-extensions>=4.11.0
 
 # LangChain & AI
 anthropic>=0.55.0
-pydantic-ai>=1.0.0
+openai>=1.58.1
+pydantic-ai>=0.3.4
 langchain-core>=0.3.0
 langchain-community>=0.2.10
 langchain-anthropic>=0.2.0
+langchain-openai>=0.2.0
 langgraph>=0.2.0
-langchain-langsmith>=0.1.84
 
 # Testing (optional)
 pytest>=7.4.3
 pytest-asyncio>=0.21.1
+
+# For LangSmith Tracing
+langsmith

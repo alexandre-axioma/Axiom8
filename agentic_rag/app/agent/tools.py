@@ -1,42 +1,67 @@
-from ..services import rag_service
+import httpx
+from pydantic import BaseModel, Field
 
-# Each function is a potential tool for the PydanticAI agent.
-# The agent uses the function's signature and docstring to decide when to call it.
-# PydanticAI does not require a special decorator, just a plain Python function.
+from ..config.settings import get_settings
 
+settings = get_settings()
 
-async def n8n_core_search(query: str, max_results: int = 5) -> str:
-    """Search n8n core concepts and fundamentals. Use this to understand n8n's
-    foundational features, flow logic, data structures, expression system,
-    and execution models."""
-    return await rag_service.n8n_core_search(query, max_results)
+class ToolError(BaseModel):
+    """A model to represent a structured error from a tool."""
+    error: str = Field(..., description="The error message that occurred.")
 
 
-async def n8n_management_search(query: str, max_results: int = 5) -> str:
-    """Search n8n deployment and administration documentation. Use this for topics
-    like self-hosting, Docker setup, scaling, security, and operational guidance."""
-    return await rag_service.n8n_management_search(query, max_results)
+async def call_n8n_webhook(url: str, query: str) -> dict:
+    """
+    Asynchronously calls a specified n8n webhook with a query and handles potential errors.
+
+    :param url: The webhook URL to call.
+    :param query: The search query string.
+    :return: A dictionary with the webhook response or a ToolError.
+    """
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json={"query": query}, timeout=30.0)
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        return ToolError(error=f"HTTP error occurred: {e.response.status_code} - {e.response.text}").dict()
+    except httpx.RequestError as e:
+        return ToolError(error=f"An error occurred while requesting {e.request.url!r}: {e}").dict()
 
 
-async def n8n_integrations_search(query: str, max_results: int = 5) -> str:
-    """Search documentation for over 200 n8n nodes and integrations, such as
-    HTTP Request, Slack, Google, and AWS. Use this to understand node configuration,
-    API parameters, and authentication setups."""
-    return await rag_service.n8n_integrations_search(query, max_results)
+async def n8n_documentation_search(query: str) -> dict:
+    """
+    Search n8n's official documentation, including core concepts, nodes, and guides.
+    Use this for questions about how n8n works, node configurations, and general usage.
+    """
+    return await call_n8n_webhook(settings.n8n_documentation_search_url, query)
 
+async def n8n_nodes_search(query: str) -> dict:
+    """
+    Search specifically for n8n nodes and integrations (e.g., Slack, Google Sheets, AWS).
+    Use this to find out if a specific integration exists or how to configure a particular node.
+    """
+    return await call_n8n_webhook(settings.n8n_nodes_search_url, query)
 
-async def n8n_workflows_search(query: str, max_results: int = 5) -> str:
-    """Search a library of real n8n workflow examples and implementation patterns.
-    This is the highest priority tool for finding practical, real-world examples.
-    Use this to see how others have solved similar problems."""
-    return await rag_service.n8n_workflows_search(query, max_results)
+async def n8n_workflows_search(query: str) -> dict:
+    """
+    Search a community library of real n8n workflow examples and templates.
+    This is the best tool for finding practical, real-world examples of how to build workflows.
+    """
+    return await call_n8n_webhook(settings.n8n_workflows_search_url, query)
+
+async def n8n_workflow_search(query: str) -> dict:
+    """
+    Search a library of real n8n workflow examples and implementation patterns.
+    This is a high-priority tool for finding practical examples.
+    """
+    return await call_n8n_webhook(settings.n8n_workflow_search_url, query)
 
 
 # A list of all tools that the agent can use.
-# This list will be passed to the agent runtime.
 all_tools = [
-    n8n_core_search,
-    n8n_management_search,
-    n8n_integrations_search,
+    n8n_documentation_search,
+    n8n_nodes_search,
     n8n_workflows_search,
+    n8n_workflow_search, # Including the duplicate for now, as it's in settings.
 ]
