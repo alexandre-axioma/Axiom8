@@ -63,21 +63,29 @@ Access the API at: `http://127.0.0.1:8000`
 
 ## 🐳 Docker Deployment
 
-### Using Docker Compose
+### Local Docker Compose
 ```bash
-# Build and run
+# Build and run locally
 docker-compose up -d
 
 # Check health
 curl http://localhost:8000/health
 ```
 
-### EasyPanel Deployment
-The application is designed for EasyPanel deployment:
-1. Import the Docker Compose configuration
-2. Set environment variables in EasyPanel
-3. Deploy alongside your n8n instance
-4. Configure n8n to use local API endpoints
+### EasyPanel Deployment (Recommended)
+The application is designed for EasyPanel deployment. **See [EASYPANEL_DEPLOYMENT.md](./EASYPANEL_DEPLOYMENT.md) for the complete deployment guide.**
+
+**Quick EasyPanel Setup:**
+1. Use `docker-compose.easypanel.yml` for optimized EasyPanel deployment
+2. Set environment variables using the `.env.example` template
+3. Deploy alongside your existing n8n instance
+4. Configure internal networking for seamless integration
+
+**Key Benefits:**
+- ✅ Automatic HTTPS with Let's Encrypt
+- ✅ Built-in monitoring and health checks
+- ✅ Seamless scaling and load balancing
+- ✅ Internal Docker networking with n8n
 
 ## 📝 Usage Examples
 
@@ -122,10 +130,19 @@ curl http://127.0.0.1:8000/health
 
 ## 🎯 Integration with n8n
 
-This system integrates with n8n through:
-1. **RAG System**: Queries n8n documentation via webhooks
-2. **Workflow Output**: Generates importable n8n JSON
-3. **API Integration**: n8n can call this service for workflow generation
+This system integrates seamlessly with n8n through multiple channels. **See [N8N_INTEGRATION_GUIDE.md](./N8N_INTEGRATION_GUIDE.md) for comprehensive integration instructions.**
+
+**Integration Methods:**
+1. **RAG System**: Queries n8n documentation via webhooks for accurate workflow generation
+2. **API Endpoints**: RESTful API for both single-shot and conversational workflow generation  
+3. **Direct Workflow Import**: Generated JSON can be directly imported into n8n
+4. **Automated Integration**: n8n workflows can call Axiom8 to generate other workflows
+
+**Integration Patterns:**
+- 🔄 **Single-Shot Generation**: One API call for simple workflows
+- 💬 **Conversational Mode**: Multi-turn conversation for complex requirements
+- 📊 **Form-Based Input**: User-friendly forms for workflow requests
+- 🔁 **Automated Import**: Direct integration with n8n's workflow import API
 
 ## 📊 Observability
 
@@ -145,6 +162,13 @@ This system integrates with n8n through:
 
 This project is proprietary software developed by Axioma Digital Solutions.
 
+## 📚 Documentation
+
+- **[EASYPANEL_DEPLOYMENT.md](./EASYPANEL_DEPLOYMENT.md)** - Complete EasyPanel deployment guide
+- **[N8N_INTEGRATION_GUIDE.md](./N8N_INTEGRATION_GUIDE.md)** - n8n integration patterns and examples
+- **[CLAUDE.md](./CLAUDE.md)** - Development guidelines and architecture details
+- **[agentic_rag/.env.example](./agentic_rag/.env.example)** - Environment variables template
+
 ## 🤝 Contributing
 
-Please read CLAUDE.md for development guidelines and architecture details.
+Please read [CLAUDE.md](./CLAUDE.md) for development guidelines and architecture details.

@@ -1,0 +1,207 @@
+# =============================================================================
+# EASYPANEL OPTIMIZED DOCKER COMPOSE CONFIGURATION
+# =============================================================================
+# This is an EasyPanel-optimized version of docker-compose.yml
+# Includes EasyPanel-specific networking, labels, and configurations
+
+version: '3.8'
+
+services:
+  axiom8-api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    
+    # EasyPanel service configuration
+    container_name: axiom8-api
+    hostname: axiom8-api
+    
+    ports:
+      - "8000:8000"
+    
+    environment:
+      # AI API Keys
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # AI Model Configuration
+      - OPENAI_MODEL=${OPENAI_MODEL:-o3-mini}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-3-opus-20240229}
+      
+      # LangSmith Tracing
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-true}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-axiom8-production}
+      
+      # n8n RAG Webhook URLs
+      - N8N_DOCUMENTATION_SEARCH_URL=${N8N_DOCUMENTATION_SEARCH_URL}
+      - N8N_NODES_SEARCH_URL=${N8N_NODES_SEARCH_URL}
+      - N8N_WORKFLOWS_SEARCH_URL=${N8N_WORKFLOWS_SEARCH_URL}
+      - N8N_WORKFLOW_SEARCH_URL=${N8N_WORKFLOW_SEARCH_URL}
+      
+      # API Configuration
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DEBUG=${DEBUG:-false}
+    
+    # Resource limits for EasyPanel
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 60s
+    
+    restart: unless-stopped
+    
+    # Enhanced health check for EasyPanel monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    
+    # Logging configuration for EasyPanel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Persistent volumes for logs and data
+    volumes:
+      - axiom8_logs:/app/logs
+      - axiom8_data:/app/data
+    
+    # EasyPanel networking
+    networks:
+      - easypanel_default
+      - axiom8_internal
+    
+    # EasyPanel labels for service discovery and management
+    labels:
+      - "easypanel.service=axiom8-api"
+      - "easypanel.project=axiom8"
+      - "easypanel.environment=production"
+      - "easypanel.version=1.0.0"
+      - "traefik.enable=true"
+      - "traefik.http.routers.axiom8-api.rule=Host(`axiom8-api.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.axiom8-api.tls=true"
+      - "traefik.http.routers.axiom8-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.axiom8-api.loadbalancer.server.port=8000"
+      - "traefik.http.routers.axiom8-api.middlewares=axiom8-api-headers"
+      - "traefik.http.middlewares.axiom8-api-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+
+# Persistent volumes for data and logs
+volumes:
+  axiom8_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./logs
+  axiom8_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data
+
+# Network configuration for EasyPanel
+networks:
+  # Connect to EasyPanel's default network for external access
+  easypanel_default:
+    external: true
+  
+  # Internal network for communication with other services (like n8n)
+  axiom8_internal:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+# =============================================================================
+# EASYPANEL DEPLOYMENT INSTRUCTIONS
+# =============================================================================
+
+# 1. DEPLOY VIA EASYPANEL UI:
+#    - Go to your EasyPanel dashboard
+#    - Create new project or select existing
+#    - Add Service → Compose
+#    - Paste this entire file content
+#    - Set environment variables in EasyPanel UI
+
+# 2. ENVIRONMENT VARIABLES TO SET IN EASYPANEL:
+#    ANTHROPIC_API_KEY=your_key_here
+#    OPENAI_API_KEY=your_key_here
+#    LANGCHAIN_API_KEY=your_key_here
+#    N8N_DOCUMENTATION_SEARCH_URL=http://n8n:5678/webhook/doc-search
+#    N8N_NODES_SEARCH_URL=http://n8n:5678/webhook/nodes-search
+#    N8N_WORKFLOWS_SEARCH_URL=http://n8n:5678/webhook/workflows-search
+#    N8N_WORKFLOW_SEARCH_URL=http://n8n:5678/webhook/workflow-search
+#    DOMAIN=your-domain.com
+
+# 3. NETWORKING:
+#    - Service will be available at: https://axiom8-api.your-domain.com
+#    - Internal communication: http://axiom8-api:8000
+#    - Health check: https://axiom8-api.your-domain.com/health
+
+# 4. MONITORING:
+#    - Logs: Available in EasyPanel dashboard
+#    - Metrics: CPU, Memory, Network usage tracked
+#    - Health: Automatic health checks every 30s
+#    - Alerts: Configure in EasyPanel for failures
+
+# 5. SCALING:
+#    - Increase memory/CPU limits in deploy.resources section
+#    - Add multiple replicas by duplicating service
+#    - Use load balancer for multiple instances
+
+# 6. SECURITY:
+#    - All environment variables encrypted in EasyPanel
+#    - HTTPS automatically handled by Traefik
+#    - Internal network isolation
+#    - Regular security updates via image rebuilds
+
+# =============================================================================
+# ALTERNATIVE: MINIMAL EASYPANEL COMPOSE
+# =============================================================================
+# If you prefer a simpler configuration, use this minimal version:
+
+# version: '3.8'
+# services:
+#   axiom8-api:
+#     build: .
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+#       - OPENAI_API_KEY=${OPENAI_API_KEY}
+#       - LANGCHAIN_TRACING_V2=true
+#       - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+#       - N8N_DOCUMENTATION_SEARCH_URL=${N8N_DOCUMENTATION_SEARCH_URL}
+#       - N8N_NODES_SEARCH_URL=${N8N_NODES_SEARCH_URL}
+#       - N8N_WORKFLOWS_SEARCH_URL=${N8N_WORKFLOWS_SEARCH_URL}
+#       - N8N_WORKFLOW_SEARCH_URL=${N8N_WORKFLOW_SEARCH_URL}
+#     restart: unless-stopped
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
+#     networks:
+#       - default
+# networks:
+#   default:
+#     external:
+#       name: easypanel_default
