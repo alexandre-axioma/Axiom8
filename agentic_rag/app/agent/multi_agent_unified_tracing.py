@@ -187,11 +187,13 @@ Previous conversation context:
     
     try:
         # Run the requirements analyst with full conversation context
+        logger.info(f"🤖 REQUIREMENTS ANALYST START | Exchange: {user_message_count} | Input length: {len(conversation_context)} chars")
+        
         response = await requirements_analyst.run(conversation_context)
         analysis_result = response.output
         execution_time = time.time() - start_time
         
-        logger.info(f"Requirements analyst (exchange {user_message_count}) completed in {execution_time:.2f}s: {analysis_result[:100]}...")
+        logger.success(f"✅ REQUIREMENTS ANALYST COMPLETED | Time: {execution_time:.2f}s | Output: '{analysis_result}'")
         
         # Add the analyst's response to messages
         ai_message = AIMessage(content=analysis_result)
@@ -213,6 +215,8 @@ Previous conversation context:
                 # Extract key details from conversation for better workflow generation
                 workflow_purpose = f"Workflow based on user conversation: {user_query}"
             
+            logger.info(f"🎯 MOVING TO WORKFLOW GENERATION | Purpose: '{workflow_purpose}'")
+            
             return {
                 "messages": [ai_message],
                 "step": "generate_workflow",
@@ -227,6 +231,7 @@ Previous conversation context:
             }
         else:
             # Requirements need clarification, keep in analysis phase
+            logger.info(f"🔄 STAYING IN REQUIREMENTS PHASE | Need clarification")
             return {
                 "messages": [ai_message],
                 "step": "analyze_requirements"  # Stay in current step for user response
@@ -293,11 +298,15 @@ async def workflow_generator_node(state: MultiAgentState) -> Dict[str, Any]:
     
     try:
         # Run the workflow generator (inherits trace context, including tool calls)
+        logger.info(f"🎨 WORKFLOW GENERATOR START | Prompt length: {len(workflow_prompt)} chars")
+        logger.debug(f"📝 WORKFLOW PROMPT: {workflow_prompt[:500]}...")
+        
         response = await workflow_generator.run(workflow_prompt)
         workflow_json = response.output
         execution_time = time.time() - start_time
         
-        logger.info(f"Workflow generator completed in {execution_time:.2f}s, JSON length: {len(workflow_json)}")
+        logger.success(f"✅ WORKFLOW GENERATOR COMPLETED | Time: {execution_time:.2f}s | JSON length: {len(workflow_json)} chars")
+        logger.debug(f"📋 GENERATED WORKFLOW: {workflow_json[:500]}...")
         
         ai_message = AIMessage(content=f"Here's your complete n8n workflow:\n\n```json\n{workflow_json}\n```")
         
