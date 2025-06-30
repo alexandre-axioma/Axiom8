@@ -30,11 +30,11 @@ class Settings(BaseSettings):
     langchain_project: Optional[str] = Field(default=None)
     langchain_api_key: Optional[SecretStr] = Field(default=None)
 
-    # n8n Webhook URLs for RAG tools
-    n8n_workflow_search_url: str = Field(...)
-    n8n_documentation_search_url: str = Field(...)
-    n8n_nodes_search_url: str = Field(...)
-    n8n_workflows_search_url: str = Field(...)
+    # n8n Webhook URLs for RAG tools (4 specialized databases)
+    n8n_core_search_url: str = Field(...)           # Core concepts and fundamentals
+    n8n_management_search_url: str = Field(...)     # Deployment and administration  
+    n8n_integrations_search_url: str = Field(...)   # 200+ nodes and integrations
+    n8n_workflows_search_url: str = Field(...)      # Real workflow examples (HIGHEST PRIORITY)
 
     model_config = SettingsConfigDict(
         env_file=env_path, env_file_encoding="utf-8", extra="ignore"

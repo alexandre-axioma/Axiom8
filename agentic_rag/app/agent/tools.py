@@ -29,39 +29,50 @@ async def call_n8n_webhook(url: str, query: str) -> dict:
         return ToolError(error=f"An error occurred while requesting {e.request.url!r}: {e}").dict()
 
 
-async def n8n_documentation_search(query: str) -> dict:
+async def n8n_core_search(query: str) -> dict:
     """
-    Search n8n's official documentation, including core concepts, nodes, and guides.
-    Use this for questions about how n8n works, node configurations, and general usage.
+    Search n8n core concepts and fundamentals.
+    
+    Content: Flow logic, data structures, basic node types, expression system, AI agents, execution models
+    Use for: Understanding n8n fundamentals, validating architectural approaches, expression syntax, AI integration concepts
     """
-    return await call_n8n_webhook(settings.n8n_documentation_search_url, query)
+    return await call_n8n_webhook(settings.n8n_core_search_url, query)
 
-async def n8n_nodes_search(query: str) -> dict:
+async def n8n_management_search(query: str) -> dict:
     """
-    Search specifically for n8n nodes and integrations (e.g., Slack, Google Sheets, AWS).
-    Use this to find out if a specific integration exists or how to configure a particular node.
+    Search n8n deployment and administration documentation.
+    
+    Content: Self-hosting, Docker setup, scaling, enterprise features, security, operational guidance
+    Use for: Infrastructure setup, environment configuration, scaling, user management, security, monitoring, troubleshooting operational issues
     """
-    return await call_n8n_webhook(settings.n8n_nodes_search_url, query)
+    return await call_n8n_webhook(settings.n8n_management_search_url, query)
+
+async def n8n_integrations_search(query: str) -> dict:
+    """
+    Search n8n nodes and integrations documentation.
+    
+    Content: 200+ nodes including HTTP Request, built-in nodes, external integrations (Slack, Google, AWS, etc.)
+    Use for: Node configuration, API parameters, authentication setup, integration capabilities, troubleshooting specific nodes
+    """
+    return await call_n8n_webhook(settings.n8n_integrations_search_url, query)
 
 async def n8n_workflows_search(query: str) -> dict:
     """
-    Search a community library of real n8n workflow examples and templates.
-    This is the best tool for finding practical, real-world examples of how to build workflows.
+    Search real workflow examples and implementation patterns ⭐ HIGHEST PRIORITY
+    
+    Content: Community workflows (geral/) and user's personal workflows (proprietário/). Contains both documentation AND actual workflow JSON
+    Use for: Implementation examples, architectural patterns, learning from similar use cases, validating approaches through real workflows
+    
+    This should be searched FIRST for practical examples!
     """
     return await call_n8n_webhook(settings.n8n_workflows_search_url, query)
 
-async def n8n_workflow_search(query: str) -> dict:
-    """
-    Search a library of real n8n workflow examples and implementation patterns.
-    This is a high-priority tool for finding practical examples.
-    """
-    return await call_n8n_webhook(settings.n8n_workflow_search_url, query)
-
 
 # A list of all tools that the agent can use.
+# Order matters: n8n_workflows_search should be tried FIRST for practical examples
 all_tools = [
-    n8n_documentation_search,
-    n8n_nodes_search,
-    n8n_workflows_search,
-    n8n_workflow_search, # Including the duplicate for now, as it's in settings.
+    n8n_workflows_search,     # ⭐ HIGHEST PRIORITY - Real workflow examples
+    n8n_integrations_search,  # 200+ nodes and integrations  
+    n8n_core_search,          # Core concepts and fundamentals
+    n8n_management_search,    # Deployment and administration
 ]
